@@ -4,52 +4,23 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop_app/provider/auth.dart';
 
 import 'product.dart';
 
-class Products with ChangeNotifier {
-  List<Product> _items = [
-    // Product(
-    //   id: 'p1',
-    //   title: 'Red Shirt',
-    //   description: 'A red shirt - it is pretty red!',
-    //   price: 29.99,
-    //   imageUrl:
-    //       'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    // ),
-    // Product(
-    //   id: 'p2',
-    //   title: 'Trousers',
-    //   description: 'A nice pair of trousers.',
-    //   price: 59.99,
-    //   imageUrl:
-    //       'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    // ),
-    // Product(
-    //   id: 'p3',
-    //   title: 'Yellow Scarf',
-    //   description: 'Warm and cozy - exactly what you need for the winter.',
-    //   price: 19.99,
-    //   imageUrl:
-    //       'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    // ),
-    // Product(
-    //   id: 'p4',
-    //   title: 'A Pan',
-    //   description: 'Prepare any meal you want.',
-    //   price: 49.99,
-    //   imageUrl:
-    //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    // ),
-  ];
+const defaultAuthToken = 'FJuwrnbO2wIY450uPsdf1zwJEM3LiEm9VaEsOg83';
 
-  // var _showFavouriteOnly = false;
+class Products with ChangeNotifier {
+  List<Product> _items = [];
+  String authToken;
+  String userId;
+  Products(
+    this.authToken,
+    this._items,
+    this.userId,
+  );
 
   List<Product> get items {
-    // if (_showFavouriteOnly) {
-    //   return _items.where((prodItem) => prodItem.isFavourite).toList();
-    // }
-
     return [..._items];
   }
 
@@ -61,25 +32,24 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  // void showFavouriteOnly() {
-  //   _showFavouriteOnly = true;
-  //   notifyListeners();
-  // }
-  //
-  // void showAll() {
-  //   _showFavouriteOnly = false;
-  //   notifyListeners();
-  // }
-
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products.json');
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    var url = Uri.parse(
+        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      print(json.decode(response.body));
+      print('Products.fetchAndSetProducts');
+      print(authToken);
       if (extractedData == null) {
         return;
       }
+      url = Uri.parse(
+          'https://shop-app-f1fcd-default-rtdb.firebaseio.com/userFavourite/$userId.json?auth=$authToken');
+      final favouriteResponse = await http.get(url);
+      final favouriteData = json.decode(favouriteResponse.body);
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
@@ -87,12 +57,10 @@ class Products with ChangeNotifier {
           title: prodData['title'] ?? "",
           description: prodData['description'] ?? "",
           price: prodData['price'] ?? 0,
-          isFavourite: prodData['isFavourite'] ?? false,
+          isFavourite: /*prodData['isFavourite'] ?? false,*/
+              favouriteData == null ? false : favouriteData[prodId] ?? false,
           imageUrl: prodData['imageUrl'] ?? "",
         ));
-        print('++++++++++Title++++++++');
-
-        print(prodData['title']);
       });
       _items = loadedProducts;
       notifyListeners();
@@ -102,8 +70,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    const url =
-        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products.json';
+    final url =
+        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -112,7 +80,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavourite': product.isFavourite,
+          'creatorId': userId,
         }),
       );
       final newProduct = Product(
@@ -135,7 +103,7 @@ class Products with ChangeNotifier {
     final productIndex = _items.indexWhere((prod) => prod.id == id);
     if (productIndex >= 0) {
       final url = Uri.parse(
-          'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products$id.json');
+          'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products$id.json?auth=$authToken');
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -154,9 +122,9 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products$id.json');
+        'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
-    Product? existingProduct = _items[existingProductIndex];
+    Product existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
     notifyListeners();
     final response = await http.delete(

@@ -5,7 +5,11 @@ class Badge extends StatelessWidget {
   final String value;
   final Color color;
 
-  const Badge({required this.child, required this.value, required this.color});
+  const Badge(
+      {Key key,
+      @required this.child,
+      @required this.value,
+      @required this.color});
 
   @override
   Widget build(BuildContext context) {

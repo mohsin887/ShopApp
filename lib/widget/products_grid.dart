@@ -7,8 +7,8 @@ import '../provider/products.dart';
 class ProductGrid extends StatelessWidget {
   final bool showFav;
   const ProductGrid({
-    Key? key,
-    required this.showFav,
+    Key key,
+    @required this.showFav,
   }) : super(key: key);
 
   @override

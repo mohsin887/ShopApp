@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ enum AuthMode { Signup, Login }
 class AuthScreen extends StatelessWidget {
   static const routeName = '/auth';
 
-  const AuthScreen({Key? key}) : super(key: key);
+  const AuthScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class AuthScreen extends StatelessWidget {
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                stops: [0, 1],
+                stops: const [0, 1],
               ),
             ),
           ),
@@ -65,7 +66,7 @@ class AuthScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(context)
                               .accentTextTheme
-                              .titleMedium!
+                              .titleMedium
                               .color,
                           fontSize: 50,
                           fontFamily: 'Anton',
@@ -89,7 +90,7 @@ class AuthScreen extends StatelessWidget {
 }
 
 class AuthCard extends StatefulWidget {
-  const AuthCard({Key? key}) : super(key: key);
+  const AuthCard({Key key}) : super(key: key);
 
   @override
   _AuthCardState createState() => _AuthCardState();
@@ -105,23 +106,68 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() async {
-    if (!_formKey.currentState!.validate()) {
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('An Error occurred!'),
+        content: Text(message),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Okay'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState.validate()) {
       // Invalid!
       return;
     }
-    _formKey.currentState!.save();
+    _formKey.currentState.save();
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
-      await Provider.of<Auth>(context, listen: false).signUp(
-        _authData['email']!,
-        _authData['password']!,
-      );
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<Auth>(context, listen: false).login(
+          _authData['email'],
+          _authData['password'],
+        );
+      } else {
+        // Sign user up
+        await Provider.of<Auth>(context, listen: false).signUp(
+          _authData['email'],
+          _authData['password'],
+        );
+      }
+    } on HttpException catch (error) {
+      var errorMessage = 'Authenticate failed';
+      if (error.message.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email is already in use';
+      } else if (error.message.toString().contains('INVALID EMAIL')) {
+        errorMessage = 'This is not a valid email address';
+      } else if (error.message.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = ' This password is too weak';
+      } else if (error.message.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = ' Could not find the user with that email';
+      } else if (error.message.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid password';
+      } else if (error.message.toString().contains('USER_DISABLED')) {
+        errorMessage =
+            'The user account has been disabled by an administrator.';
+      }
+
+      _showErrorDialog(errorMessage);
+    } catch (err) {
+      const errMessage = 'Could not authenticate you. Please try again later';
+      _showErrorDialog(errMessage);
     }
     setState(() {
       _isLoading = false;
@@ -163,12 +209,12 @@ class _AuthCardState extends State<AuthCard> {
                   decoration: const InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value!.isEmpty || !value.contains('@')) {
+                    if (value.isEmpty || !value.contains('@')) {
                       return 'Invalid email!';
                     }
                   },
                   onSaved: (value) {
-                    _authData['email'] = value!;
+                    _authData['email'] = value;
                   },
                 ),
                 TextFormField(
@@ -176,12 +222,12 @@ class _AuthCardState extends State<AuthCard> {
                   obscureText: true,
                   controller: _passwordController,
                   validator: (value) {
-                    if (value!.isEmpty || value.length < 5) {
+                    if (value.isEmpty || value.length < 5) {
                       return 'Password is too short!';
                     }
                   },
                   onSaved: (value) {
-                    _authData['password'] = value!;
+                    _authData['password'] = value;
                   },
                 ),
                 if (_authMode == AuthMode.Signup)
@@ -214,7 +260,7 @@ class _AuthCardState extends State<AuthCard> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 8.0),
                     color: Theme.of(context).primaryColor,
-                    textColor: Theme.of(context).primaryTextTheme.button!.color,
+                    textColor: Theme.of(context).primaryTextTheme.button.color,
                   ),
                 FlatButton(
                   child: Text(

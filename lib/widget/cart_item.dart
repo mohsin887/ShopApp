@@ -9,12 +9,12 @@ class CartItem extends StatelessWidget {
   final int quantity;
   final String title;
   const CartItem(
-      {Key? key,
-      required this.id,
-      required this.price,
-      required this.quantity,
-      required this.title,
-      required this.productId})
+      {Key key,
+      @required this.id,
+      @required this.price,
+      @required this.quantity,
+      @required this.title,
+      @required this.productId})
       : super(key: key);
 
   @override
