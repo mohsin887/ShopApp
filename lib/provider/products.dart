@@ -38,12 +38,10 @@ class Products with ChangeNotifier {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      print(json.decode(response.body));
-      print('Products.fetchAndSetProducts');
-      print(authToken);
-      if (extractedData == null) {
-        return;
-      }
+      debugPrint(json.decode(response.body));
+      debugPrint('Products.fetchAndSetProducts');
+      debugPrint(authToken);
+
       url = Uri.parse(
           'https://shop-app-f1fcd-default-rtdb.firebaseio.com/userFavourite/$userId.json?auth=$authToken');
       final favouriteResponse = await http.get(url);
@@ -92,7 +90,7 @@ class Products with ChangeNotifier {
       _items.add(newProduct);
       notifyListeners();
     } catch (error) {
-      print(error);
+      debugPrint(error.toString());
       rethrow;
     }
   }

@@ -43,19 +43,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void didChangeDependencies() {
     if (_isInit) {
       final productId = ModalRoute.of(context)?.settings.arguments as String;
-      if (productId != null) {
-        _editedProduct =
-            Provider.of<Products>(context, listen: false).findById(productId);
+      _editedProduct =
+          Provider.of<Products>(context, listen: false).findById(productId);
 
-        _initValues = {
-          'title': _editedProduct.title,
-          'description': _editedProduct.description,
-          'price': _editedProduct.price.toString(),
-          // 'imageUrl': _editedProduct.imageUrl,
-          'imageUrl': '',
-        };
-        _imageConroller.text = _editedProduct.imageUrl;
-      }
+      _initValues = {
+        'title': _editedProduct.title,
+        'description': _editedProduct.description,
+        'price': _editedProduct.price.toString(),
+        // 'imageUrl': _editedProduct.imageUrl,
+        'imageUrl': '',
+      };
+      _imageConroller.text = _editedProduct.imageUrl;
     }
 
     _isInit = false;
@@ -111,10 +109,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
       }*/
 
       // Navigator.of(context).pop();
-      print(_editedProduct.title);
-      print(_editedProduct.price);
-      print(_editedProduct.description);
-      print(_editedProduct.imageUrl);
+      debugPrint(_editedProduct.title);
+      debugPrint(_editedProduct.price.toString());
+      debugPrint(_editedProduct.description);
+      debugPrint(_editedProduct.imageUrl);
     }
     setState(() {
       _isLoaded = false;

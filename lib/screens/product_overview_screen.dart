@@ -6,8 +6,6 @@ import 'package:shop_app/screens/cart_screen.dart';
 import 'package:shop_app/widget/21.1%20badge.dart';
 import 'package:shop_app/widget/app_drawer.dart';
 
-import '../provider/product.dart';
-import '../widget/product_item.dart';
 import '../widget/products_grid.dart';
 
 enum FilterOption {
@@ -82,7 +80,9 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
           ),
           Consumer<Cart>(
             builder: (_, cart, ch) => Badge(
-                child: ch!, value: cart.itemCount.toString(), color: Colors.red),
+                child: ch!,
+                value: cart.itemCount.toString(),
+                color: Colors.red),
             child: IconButton(
               icon: const Icon(
                 Icons.shopping_cart,
