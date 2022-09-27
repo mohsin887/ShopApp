@@ -5,11 +5,12 @@ class Badge extends StatelessWidget {
   final String value;
   final Color color;
 
-  const Badge(
-      {Key key,
-      @required this.child,
-      @required this.value,
-      @required this.color});
+  const Badge({
+    Key? key,
+    required this.child,
+    required this.value,
+    required this.color,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class Badge extends StatelessWidget {
             // color: Theme.of(context).accentColor,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              color: color != null ? color : Theme.of(context).accentColor,
+              color: color ?? Theme.of(context).colorScheme.secondary,
             ),
             constraints: const BoxConstraints(
               minWidth: 16,

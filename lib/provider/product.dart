@@ -12,11 +12,11 @@ class Product with ChangeNotifier {
   bool isFavourite = false;
 
   Product({
-    @required this.id,
+    required this.id,
     this.title = "",
-    @required this.description,
-    @required this.price,
-    @required this.imageUrl,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
     this.isFavourite = false,
   });
 

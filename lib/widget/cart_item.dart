@@ -8,14 +8,8 @@ class CartItem extends StatelessWidget {
   final num price;
   final int quantity;
   final String title;
-  const CartItem(
-      {Key key,
-      @required this.id,
-      @required this.price,
-      @required this.quantity,
-      @required this.title,
-      @required this.productId})
-      : super(key: key);
+
+  const CartItem({Key? key, required this.id, required this.productId, required this.price, required this.quantity, required this.title,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +38,13 @@ class CartItem extends StatelessWidget {
             content:
                 const Text('Do you want to remove the item from the cart?'),
             actions: [
-              FlatButton(
+              ElevatedButton(
                 onPressed: () {
                   Navigator.of(ctx).pop(false);
                 },
                 child: const Text('No'),
               ),
-              FlatButton(
+              ElevatedButton(
                 onPressed: () {
                   Navigator.of(ctx).pop(true);
                 },

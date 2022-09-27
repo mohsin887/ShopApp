@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_app/provider/auth.dart';
 
 import 'product.dart';
 
@@ -124,7 +122,7 @@ class Products with ChangeNotifier {
     final url = Uri.parse(
         'https://shop-app-f1fcd-default-rtdb.firebaseio.com/products$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
-    Product existingProduct = _items[existingProductIndex];
+    Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
     notifyListeners();
     final response = await http.delete(

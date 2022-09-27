@@ -7,7 +7,7 @@ import 'package:shop_app/widget/cart_item.dart';
 
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
-  const CartScreen({Key key}) : super(key: key);
+  const CartScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +65,9 @@ class CartScreen extends StatelessWidget {
 }
 
 class OrderButton extends StatefulWidget {
-  const OrderButton({
-    Key key,
-    @required this.cart,
-  }) : super(key: key);
-
   final Cart cart;
+
+  const OrderButton({Key? key, required this.cart}) : super(key: key);
 
   @override
   State<OrderButton> createState() => _OrderButtonState();
@@ -80,7 +77,7 @@ class _OrderButtonState extends State<OrderButton> {
   var _isLoading = false;
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       onPressed: (widget.cart.totalAmount <= 0 || _isLoading)
           ? null
           : () async {

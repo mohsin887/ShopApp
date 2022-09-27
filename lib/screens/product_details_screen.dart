@@ -9,11 +9,11 @@ class ProductDetailsScreen extends StatelessWidget {
 
   static const routeName = '/product-detail';
 
-  const ProductDetailsScreen({Key key}) : super(key: key);
+  const ProductDetailsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final productId = ModalRoute.of(context).settings.arguments as String;
+    final productId = ModalRoute.of(context)?.settings.arguments as String;
     final loadedProduct =
         Provider.of<Products>(context, listen: false).findById(productId);
     return Scaffold(
@@ -62,7 +62,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     softWrap: true,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 800,
                 )
               ],

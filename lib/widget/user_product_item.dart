@@ -7,16 +7,16 @@ class UserProductItem extends StatelessWidget {
   final String title;
   final String id;
   final String imageUrl;
-  const UserProductItem(
-      {Key key,
-      @required this.title,
-      @required this.imageUrl,
-      @required this.id})
-      : super(key: key);
+
+  const UserProductItem({
+    Key? key,
+    required this.title,
+    required this.id,
+    required this.imageUrl,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final scafold = Scaffold.of(context);
     return ListTile(
       title: Text(title),
       leading: CircleAvatar(
@@ -42,7 +42,7 @@ class UserProductItem extends StatelessWidget {
                   await Provider.of<Products>(context, listen: false)
                       .deleteProduct(id);
                 } catch (error) {
-                  scafold.showSnackBar(
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
                         'Delete Failed!',
